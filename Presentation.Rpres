@@ -1,0 +1,64 @@
+Course Project: Shiny Application and Reproducible Pitch
+========================================================
+author: Bern Reyes
+date: 2/5/18
+autosize: true
+
+Overview
+========================================================
+
+This presentation contains the documentation for the application about the survival rate of Female and Male Australian patients diagnosed of AIDs before July 1991.
+
+This application computes the survival rate given the selected values in the following categories:
+
+- Age (years) by the time of diagnosis
+- State origin of the patient
+
+Data
+========================================================
+
+The data used is Aids2 from COUNT library. It contains 2843 observations and 7 variables. Other information can be found [**here**] (https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/Aids2.html). 
+
+
+Here is the summary of the Aids2 data:
+```{r, echo=TRUE, error=FALSE, message=FALSE}
+library(COUNT)
+summary(Aids2)
+```
+
+Web Application
+========================================================
+
+The created application is located here:
+https://breyes0409.shinyapps.io/CourseProjectShinyApp/
+
+In this application, the user will need to select two demographic information and analyze the survival rate by sex. Only two categories were used to filter the data to get enough sample size.
+
+1. The age when the patient was diagnosed: Using a slider, the user will select the range of the age to be considered in the data.
+
+2. The state of origin of the patient: using dropdown list, the user will choose from the list of states.
+
+The application will compute and graph the survival rate of female and male patients.
+
+
+Overall Survival Rate by Sex
+========================================================
+
+```{r, echo=FALSE, error=FALSE, message=FALSE}
+
+library(ggplot2)
+aidsdata <-data.frame(Aids2)
+aidsdata$survived <- ifelse(aidsdata$status =="A",1,0)
+aggdata <- aggregate(aidsdata[,c("survived")], list(aidsdata$sex),mean)
+      aggdata$survival.rate <- paste(round(100*aggdata$x, 2), "%", sep="")
+      aggdata$Sex <-ifelse(aggdata$Group.1=="F","Female","Male")
+      ggplot(data=aggdata, aes(x=Sex, y=x)) +
+          geom_bar(stat="identity", fill="steelblue")+
+          labs(x="Sex", y="Survival Rate")+
+          theme(axis.title.x = element_text(size=20))+
+          theme(axis.title.y = element_text(size=20))+
+          theme(axis.text= element_text(size=20))+
+          geom_text(aes(label=survival.rate), vjust=-0.3, size=7)
+```
+
+Overall, the survival rate of female patients diagnosed with AIDS is higher than the male patients.
